@@ -157,22 +157,14 @@ const HomePage = () => {
 
                       {/* 🔧 FIXED: Improved action button */}
                       <button
-                        className={`btn w-full mt-2 transition-all duration-200 ${
-                          hasRequestBeenSent 
-                            ? "btn-success btn-disabled" 
-                            : isPending 
-                              ? "btn-disabled loading" 
-                              : "btn-primary hover:btn-primary-focus"
-                        }`}
+                        className={`btn w-full mt-2 transition-all duration-200 ${hasRequestBeenSent
+                            ? "btn-success btn-disabled"
+                            : "btn-primary hover:btn-primary-focus"
+                          }`}
                         onClick={() => handleSendRequest(user._id)}
-                        disabled={hasRequestBeenSent || isPending}
+                        disabled={hasRequestBeenSent} // disable only if request already sent
                       >
-                        {isPending ? (
-                          <>
-                            <span className="loading loading-spinner loading-sm mr-2" />
-                            Sending...
-                          </>
-                        ) : hasRequestBeenSent ? (
+                        {hasRequestBeenSent ? (
                           <>
                             <CheckCircleIcon className="size-4 mr-2" />
                             Request Sent
@@ -184,6 +176,7 @@ const HomePage = () => {
                           </>
                         )}
                       </button>
+
                     </div>
                   </div>
                 );
