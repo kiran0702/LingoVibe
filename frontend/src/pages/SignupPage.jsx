@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { useMutation } from "@tanstack/react-query";
 import { useQueryClient  } from '@tanstack/react-query';
 import { signup } from '../lib/api.js';
-const SignupPage = () => {
+const SignUpPage = () => {
   const [SignupData, setSignupData] = React.useState({
     fullName: '',
     email: '',
@@ -130,4 +130,4 @@ const SignupPage = () => {
 
 
 
-export default SignupPage
+export default SignUpPage
