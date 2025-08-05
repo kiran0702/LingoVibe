@@ -53,7 +53,7 @@ const App = () => {
           }
         />
         <Route
-          path="/notificatio"
+          path="/notification"
           element={
             isAuthenticated && isOnboarded ? (
               <Layout showSidebar={true}>
