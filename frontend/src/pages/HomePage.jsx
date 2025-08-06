@@ -6,62 +6,65 @@ import {
   getUserFriends,
   sendFriendRequest,
 } from "../lib/api";
-import { Link } from "react-router";
+import { Link } from "react-router-dom"; // FIX: Use react-router-dom
 import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-react";
-
 import { capitialize } from "../lib/utils";
-
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
-  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
 
-  const { data: friends = [], isLoading: loadingFriends } = useQuery({
-    queryKey: ["friends"],
-    queryFn: getUserFriends,
-  });
-
-  const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: getRecommendedUsers,
-  });
-
+  // React Query - fetch OUTGOING requests on every load
   const { data: outgoingFriendReqs = [] } = useQuery({
     queryKey: ["outgoingFriendReqs"],
     queryFn: getOutgoingFriendReqs,
   });
 
-  // 🔧 FIXED: Improved mutation with proper query invalidation
-  const { mutate: sendRequestMutation, isPending } = useMutation({
+  // Create a Set of requested user IDs directly from API (true source of truth)
+  const outgoingRequestsIds = new Set();
+  if (Array.isArray(outgoingFriendReqs) && outgoingFriendReqs.length > 0) {
+    outgoingFriendReqs.forEach((req) => {
+      if (req.recipient && req.recipient._id) {
+        outgoingRequestsIds.add(req.recipient._id);
+      }
+    });
+  }
+
+  // Fetch your friends and recommended users
+  const { data: friends = [], isLoading: loadingFriends } = useQuery({
+    queryKey: ["friends"],
+    queryFn: getUserFriends,
+  });
+  const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
+    queryKey: ["users"],
+    queryFn: getRecommendedUsers,
+  });
+
+  // For disabling the button only during the API call
+  const [submitPendingId, setSubmitPendingId] = useState(null);
+
+  // Send friend request mutation
+  const { mutate: sendRequestMutation } = useMutation({
     mutationFn: sendFriendRequest,
+    onMutate: (userId) => {
+      setSubmitPendingId(userId); // optimistically show loading for ONLY this userId
+    },
+    onSettled: () => {
+      setSubmitPendingId(null);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] });
-      queryClient.invalidateQueries({ queryKey: ["users"] }); // ✅ Update recommendations
+      queryClient.invalidateQueries({ queryKey: ["users"] }); // Invalidate recs too
     },
     onError: (error) => {
       console.error("Error sending friend request:", error);
-      // Optionally show error toast/notification here
+      // Optionally show a toast
     }
   });
 
-  // 🔧 FIXED: Better handling of outgoing requests
-  useEffect(() => {
-    const outgoingIds = new Set();
-    if (Array.isArray(outgoingFriendReqs) && outgoingFriendReqs.length > 0) {
-      outgoingFriendReqs.forEach((req) => {
-        if (req.recipient && req.recipient._id) {
-          outgoingIds.add(req.recipient._id);
-        }
-      });
-    }
-    setOutgoingRequestsIds(outgoingIds);
-  }, [outgoingFriendReqs]);
-
-  // 🔧 FIXED: Better button click handler
   const handleSendRequest = (userId) => {
-    if (!outgoingRequestsIds.has(userId) && !isPending) {
+    if (!outgoingRequestsIds.has(userId)) {
       sendRequestMutation(userId);
     }
   };
@@ -118,7 +121,7 @@ const HomePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
-
+                const isPending = submitPendingId === user._id;
                 return (
                   <div
                     key={user._id}
@@ -129,7 +132,6 @@ const HomePage = () => {
                         <div className="avatar size-16 rounded-full">
                           <img src={user.profilePic} alt={user.fullName} />
                         </div>
-
                         <div>
                           <h3 className="font-semibold text-lg">{user.fullName}</h3>
                           {user.location && (
@@ -140,8 +142,6 @@ const HomePage = () => {
                           )}
                         </div>
                       </div>
-
-                      {/* Languages with flags */}
                       <div className="flex flex-wrap gap-1.5">
                         <span className="badge badge-secondary">
                           {getLanguageFlag(user.nativeLanguage)}
@@ -152,22 +152,25 @@ const HomePage = () => {
                           Learning: {capitialize(user.learningLanguage)}
                         </span>
                       </div>
-
                       {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
-
-                      {/* 🔧 FIXED: Improved action button */}
                       <button
-                        className={`btn w-full mt-2 transition-all duration-200 ${hasRequestBeenSent
+                        className={`btn w-full mt-2 transition-all duration-200 ${
+                          hasRequestBeenSent
                             ? "btn-success btn-disabled"
                             : "btn-primary hover:btn-primary-focus"
-                          }`}
+                        } ${isPending ? "loading" : ""}`}
                         onClick={() => handleSendRequest(user._id)}
-                        disabled={hasRequestBeenSent} // disable only if request already sent
+                        disabled={hasRequestBeenSent || isPending}
                       >
                         {hasRequestBeenSent ? (
                           <>
                             <CheckCircleIcon className="size-4 mr-2" />
                             Request Sent
+                          </>
+                        ) : isPending ? (
+                          <>
+                            <span className="loading loading-spinner loading-xs mr-2" />
+                            Sending...
                           </>
                         ) : (
                           <>
@@ -176,7 +179,6 @@ const HomePage = () => {
                           </>
                         )}
                       </button>
-
                     </div>
                   </div>
                 );
