@@ -17,8 +17,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
-  .split(",")
+const renderOrigin = process.env.RENDER_EXTERNAL_HOSTNAME
+  ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
+  : "https://lingovibe.onrender.com";
+
+const allowedOrigins = [
+  ...(process.env.CLIENT_URL || "").split(","),
+  "http://localhost:5173",
+  renderOrigin,
+]
   .map((origin) => origin.trim())
   .filter(Boolean);
 
