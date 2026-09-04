@@ -16,7 +16,6 @@ import { StreamChat } from 'stream-chat';
 import toast from "react-hot-toast";
 import ChatLoader from '../components/ChatLoader';
 import CallButton from '../components/CallButton';
-import { Check } from 'lucide-react';
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
 const ChatPage = () => {
@@ -27,17 +26,27 @@ const ChatPage = () => {
 
   const { authUser } = useAuthUser();
 
-  const { data: tokenData } = useQuery({
+  const { data: tokenData, isLoading: isTokenLoading, isError: isTokenError } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
     enabled: !!authUser
   });
 
   useEffect(() => {
+    let client;
+    let isMounted = true;
+
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (!authUser || isTokenLoading || isTokenError || !tokenData?.token) return;
+
+      if (!STREAM_API_KEY) {
+        toast.error("Chat is not configured. Missing Stream API key.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const client = StreamChat.getInstance(STREAM_API_KEY);
+        client = StreamChat.getInstance(STREAM_API_KEY);
         await client.connectUser(
           {
             id: authUser._id,
@@ -51,22 +60,25 @@ const ChatPage = () => {
           members: [authUser._id, targetUserId]
         });
         await currChannel.watch();
-        setChatClient(client);
-        setChannel(currChannel);
+        if (isMounted) {
+          setChatClient(client);
+          setChannel(currChannel);
+        }
       } catch (error) {
         toast.error("Could not connect to the chat");
         console.error("Error initializing the stream chat client:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
+
     initChat();
 
-    // Clean-up on component unmount
     return () => {
-      if (chatClient) chatClient.disconnectUser();
+      isMounted = false;
+      if (client) client.disconnectUser();
     };
-  }, [tokenData, authUser, targetUserId]);
+  }, [tokenData, authUser, targetUserId, isTokenLoading, isTokenError]);
 
   const handleVideoCall = () => {
   if (channel) {
@@ -80,7 +92,17 @@ const ChatPage = () => {
 };
 
 
-  if (loading || !chatClient || !channel) return <ChatLoader />;
+  if (loading || isTokenLoading) return <ChatLoader />;
+
+  if (isTokenError || !tokenData?.token) {
+    return (
+      <div className="flex h-[93vh] items-center justify-center px-6 text-center">
+        <p>Unable to connect to chat. Please refresh and try again.</p>
+      </div>
+    );
+  }
+
+  if (!chatClient || !channel) return <ChatLoader />;
 
   return (
     <div className='h-[93vh]'>
