@@ -122,7 +122,7 @@ The chat controller generates a Stream Chat token for the authenticated user. Th
 
 These are the main implementation mismatches to be aware of when running the backend:
 
-- `src/lib/db.js` reads `process.env.MONGO_URI`, while `.env.example` defines `MONGODB_URI`.
+- `src/lib/db.js` reads `MONGODB_URI` and supports `MONGO_URI` as a compatibility fallback.
 - `src/lib/stream.js` reads `process.env.STEAM_API_KEY` and `process.env.STEAM_API_SECRET`, while `.env.example` defines `STREAM_API_KEY` and `STREAM_API_SECRET`.
 
 If those env names are not aligned in the real `.env` file, MongoDB or Stream Chat initialization will fail at runtime.
