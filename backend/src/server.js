@@ -7,29 +7,35 @@ import chatRoutes from "./routes/chat.Route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
-dotenv.config();
+import { fileURLToPath } from "node:url";
+
+const currentFile = fileURLToPath(import.meta.url);
+const currentDirectory = path.dirname(currentFile);
+dotenv.config({ path: path.resolve(currentDirectory, "../.env") });
+
 const app = express();
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true, // Allow cookies to be sent with requests
-}))
-connectDB().then(
-app.listen(PORT, ()=>{
-  console.log(`server is running on this ${PORT}`)
-})
-)
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // Allow cookies to be sent with requests
+  }),
+);
+await connectDB();
+app.listen(PORT, () => {
+  console.log(`server is running on this ${PORT}`);
+});
 
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/auth",authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/chat",chatRoutes);
-if (process.env.NODE_ENV === "production"){
+app.use("/api/chat", chatRoutes);
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get("*", (req,res)=>{
-    res.sendFile(path.join(__dirname,"../frontend/dist/index.html"))
-  })
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
 }
