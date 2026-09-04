@@ -8,7 +8,7 @@ This document explains how the backend starts, how requests move through middlew
 flowchart TD
   A[Node starts src/server.js] --> B[Load dotenv]
   B --> C[Create Express app]
-  C --> D[Enable CORS for http://localhost:5173]
+  C --> D[Enable configured CORS origins]
   D --> E[Connect to MongoDB]
   E --> F[Register JSON parser and cookie parser]
   F --> G[Mount /api/auth routes]
@@ -45,31 +45,31 @@ That means the middleware is the main traffic gate for any route that needs a lo
 
 ### Auth APIs
 
-| Method | Path | Protection | Purpose |
-| --- | --- | --- | --- |
-| POST | `/api/auth/signup` | Public | Create a new user, hash password through the model hook, create a JWT cookie, and upsert the user to Stream |
-| POST | `/api/auth/login` | Public | Verify email/password, set JWT cookie, return user data |
-| POST | `/api/auth/logout` | Public | Clear the JWT cookie |
-| POST | `/api/auth/onboarding` | Protected | Save onboarding profile fields and mark user as onboarded |
-| GET | `/api/auth/me` | Protected | Return the authenticated user |
+| Method | Path                   | Protection | Purpose                                                                                                     |
+| ------ | ---------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| POST   | `/api/auth/signup`     | Public     | Create a new user, hash password through the model hook, create a JWT cookie, and upsert the user to Stream |
+| POST   | `/api/auth/login`      | Public     | Verify email/password, set JWT cookie, return user data                                                     |
+| POST   | `/api/auth/logout`     | Public     | Clear the JWT cookie                                                                                        |
+| POST   | `/api/auth/onboarding` | Protected  | Save onboarding profile fields and mark user as onboarded                                                   |
+| GET    | `/api/auth/me`         | Protected  | Return the authenticated user                                                                               |
 
 ### User and Friends APIs
 
-| Method | Path | Protection | Purpose |
-| --- | --- | --- | --- |
-| GET | `/api/users/` | Protected | Return recommended users |
-| GET | `/api/users/friends` | Protected | Return my friends list with populated profile fields |
-| POST | `/api/users/friend-request/:id` | Protected | Send a friend request to another user |
-| PUT | `/api/users/friend-request/:id/accept` | Protected | Accept a friend request and add both users to each other’s friends lists |
-| DELETE | `/api/users/friend-request/:id` | Protected | Delete a pending friend request |
-| GET | `/api/users/friend-requests` | Protected | Fetch incoming pending and accepted requests |
-| GET | `/api/users/outgoing-friend-requests` | Protected | Fetch outgoing pending requests |
+| Method | Path                                   | Protection | Purpose                                                                  |
+| ------ | -------------------------------------- | ---------- | ------------------------------------------------------------------------ |
+| GET    | `/api/users/`                          | Protected  | Return recommended users                                                 |
+| GET    | `/api/users/friends`                   | Protected  | Return my friends list with populated profile fields                     |
+| POST   | `/api/users/friend-request/:id`        | Protected  | Send a friend request to another user                                    |
+| PUT    | `/api/users/friend-request/:id/accept` | Protected  | Accept a friend request and add both users to each other’s friends lists |
+| DELETE | `/api/users/friend-request/:id`        | Protected  | Delete a pending friend request                                          |
+| GET    | `/api/users/friend-requests`           | Protected  | Fetch incoming pending and accepted requests                             |
+| GET    | `/api/users/outgoing-friend-requests`  | Protected  | Fetch outgoing pending requests                                          |
 
 ### Chat API
 
-| Method | Path | Protection | Purpose |
-| --- | --- | --- | --- |
-| GET | `/api/chat/token` | Protected | Generate and return a Stream Chat token for the current user |
+| Method | Path              | Protection | Purpose                                                      |
+| ------ | ----------------- | ---------- | ------------------------------------------------------------ |
+| GET    | `/api/chat/token` | Protected  | Generate and return a Stream Chat token for the current user |
 
 ## 4. Backend Logic Areas
 
@@ -124,6 +124,7 @@ These are the main implementation mismatches to be aware of when running the bac
 
 - `src/lib/db.js` reads `MONGODB_URI` and supports `MONGO_URI` as a compatibility fallback.
 - `src/lib/stream.js` reads `process.env.STREAM_API_KEY` and `process.env.STREAM_API_SECRET`, matching `.env.example`.
+- The frontend build reads `VITE_STREAM_API_KEY`; this public Stream API key must be available during the frontend build.
 
 If those env names are not aligned in the real `.env` file, MongoDB or Stream Chat initialization will fail at runtime.
 

@@ -1,3 +1,106 @@
+# LingoVibe
+
+LingoVibe is a social language-learning platform where users can find language partners, practice conversations, and build connections across cultures.
+
+## Features
+
+- Secure signup and login with JWT and HTTP-only cookies
+- Friend requests and friend management
+- Language-based user recommendations
+- Real-time chat and calling with Stream
+- Responsive React interface
+- Random profile avatars during onboarding
+
+## Tech Stack
+
+- Frontend: React, Vite, Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: MongoDB with Mongoose
+- Chat: Stream Chat
+- Authentication: JSON Web Tokens
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 16 or newer
+- Git
+- A MongoDB Atlas cluster or local MongoDB instance
+- A Stream Chat account for chat features
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/kiran0702/LingoVibe.git
+cd LingoVibe
+
+cd backend
+npm install
+
+cd ../frontend
+npm install
+```
+
+Create `backend/.env` with the following values. Never commit this file:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET_KEY=your_super_secret_jwt_key
+STREAM_API_KEY=your_stream_api_key
+STREAM_API_SECRET=your_stream_api_secret
+NODE_ENV=development
+```
+
+Start the backend and frontend in separate terminals:
+
+```bash
+cd backend
+npm run dev
+```
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173` and the backend runs at `http://localhost:5000`.
+
+## Deployment
+
+The backend can be deployed to Render, Railway, or Heroku. The frontend can be deployed to Vercel or Netlify. Configure all environment variables through the hosting provider's secret settings.
+
+For a combined Render deployment, configure these variables before building:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET_KEY=your_secret_key
+STREAM_API_KEY=your_stream_api_key
+STREAM_API_SECRET=your_stream_api_secret
+VITE_STREAM_API_KEY=your_stream_api_key
+NODE_ENV=production
+CLIENT_URL=https://your-render-domain.onrender.com
+```
+
+MongoDB Atlas must also allow the deployment network in its IP access list. Otherwise MongoDB rejects the connection even when `MONGODB_URI` is correct.
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Commit your changes.
+4. Push the branch and open a pull request.
+
+## License
+
+This project is distributed under the MIT License.
+
+## Links
+
+- Live demo: https://lingovibe.onrender.com/
+- Repository: https://github.com/kiran0702/LingoVibe
 <div align="center">
   <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
@@ -8,57 +111,8 @@
 
 <h1 align="center">🌐 LingoVibe</h1>
 
-<p align="center">
-  <strong>A premium language-learning social platform that empowers users to connect, practice, and achieve fluency together.</strong><br>
-  <em>Breaking down language barriers and building global communities.</em>
-</p>
-
-<p align="center">
-  <a href="https://lingovibe.onrender.com/"><strong>🔗 View Live Demo</strong></a>
-  ·
-  <a href="https://github.com/kiran0702/LingoVibe/issues">Report Bug</a>
-  ·
-  <a href="https://github.com/kiran0702/LingoVibe/issues">Request Feature</a>
-</p>
-
----
-
-## 📖 Table of Contents
-- [About the Project](#-about-the-project)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Deployment](#-deployment)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
-
-## 🌟 About the Project
-
-**LingoVibe** is a modern social networking platform specifically designed for language enthusiasts. Whether you're a beginner trying to learn the basics of Spanish or an advanced speaker looking to maintain your Japanese fluency, LingoVibe connects you with like-minded peers across the globe. 
-
-Unlike traditional language learning apps that focus heavily on repetitive exercises, LingoVibe emphasizes **real-world practice and social connection**. Users can find language partners, engage in conversations, and learn through cultural exchange.
-
-## 🚀 Key Features
-
-- **🔐 Secure Authentication:** Robust user signup, login, and secure session management using JSON Web Tokens (JWT) and HTTP-only cookies.
-- **🤝 Dynamic Friend System:** Connect with peers seamlessly. Send, accept, or decline friend requests to build your personalized language learning network.
-- **🌍 Smart Language Matching:** Our algorithm recommends language partners based on your target languages and proficiency levels.
-- **📱 Responsive & Modern UI:** A sleek, fully responsive user interface built with Tailwind CSS, ensuring a seamless experience across desktop, tablet, and mobile devices.
-- **🔎 Discoverability:** Browse recommended users and language experts to expand your network instantly.
-
-## 📦 Tech Stack
-
-LingoVibe is built using the MERN stack, leveraging modern tools for optimal performance and developer experience.
-
-### **Client-Side (Frontend)**
-- **[React.js](https://reactjs.org/)**: UI Library
-- **[Vite](https://vitejs.dev/)**: Next Generation Frontend Tooling
-- **[Tailwind CSS](https://tailwindcss.com/)**: Utility-first styling framework
-
 ### **Server-Side (Backend)**
+
 - **[Node.js](https://nodejs.org/)**: JavaScript Runtime
 - **[Express.js](https://expressjs.com/)**: Web Framework
 - **[MongoDB](https://www.mongodb.com/)**: NoSQL Database
@@ -68,22 +122,55 @@ LingoVibe is built using the MERN stack, leveraging modern tools for optimal per
 
 Follow these instructions to set up the project locally on your machine.
 
-### Prerequisites
+</p>
 
-Make sure you have the following installed:
-- [Node.js](https://nodejs.org/en/download/) (v16 or higher)
-- [Git](https://git-scm.com/)
-- A MongoDB cluster (e.g., [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-  </p>
-cd backend
+```bash
+cd frontend
 npm run dev
 ```
+
+The application runs at `http://localhost:5173` with the backend on `http://localhost:5000`.
+
+## ⚙️ Production Deployment
+
+- **Backend**: Ready for platforms such as Render, Railway, or Heroku. Configure environment variables in the platform dashboard.
+- **Frontend**: Can be hosted on Vercel or Netlify. Run `npm run build` in the frontend directory for a production build.
+
+## 🤝 Contributing
+
+Contributions make the open-source community stronger and are greatly appreciated.
+
+1. Fork the project.
+2. Create a feature branch: `git checkout -b feature/AmazingFeature`.
+3. Commit your changes.
+4. Push the branch and open a pull request.
+
+## 📄 License
+
+Distributed under the MIT License.
+
+## 📬 Contact
+
+**Kiran P**
+
+- Email: [kiran7722p@gmail.com](mailto:kiran7722p@gmail.com)
+- LinkedIn: [Kiran P](https://www.linkedin.com/in/kiran-p-2a74b3310/)
+
+---
+
+<p align="center">
+  <em>🧠 LingoVibe is more than just a project — it’s a step toward creating meaningful digital communities through languages. Built with passion and open for the world to contribute!</em>
+</p>
+cd backend
+npm run dev
+
+````
 
 **Frontend:**
 ```bash
 cd frontend
 npm run dev
-```
+````
 
 ## ⚙️ Production Deployment
 
@@ -92,6 +179,7 @@ npm run dev
 - Make sure to properly configure all **environment variables** in your production environment!
 
 To build the frontend for production:
+
 ```bash
 cd frontend
 npm run build

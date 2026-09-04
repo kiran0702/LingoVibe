@@ -7,11 +7,13 @@ const currentFile = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFile);
 dotenv.config({ path: path.resolve(currentDirectory, "../../.env") });
 
-const apiKey = process.env.STREAM_API_KEY;
+const apiKey = process.env.STREAM_API_KEY || process.env.VITE_STREAM_API_KEY;
 const apiSecret = process.env.STREAM_API_SECRET;
 
 if (!apiKey || !apiSecret) {
-  console.log("Stream API key or secret is missing");
+  console.warn(
+    "Stream configuration is incomplete. Set STREAM_API_KEY and STREAM_API_SECRET in the deployment environment.",
+  );
 }
 
 const streamClient = StreamChat.getInstance(apiKey, apiSecret);
