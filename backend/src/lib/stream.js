@@ -1,7 +1,11 @@
 import { StreamChat } from "stream-chat";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+const currentFile = fileURLToPath(import.meta.url);
+const currentDirectory = path.dirname(currentFile);
+dotenv.config({ path: path.resolve(currentDirectory, "../../.env") });
 
 const apiKey = process.env.STREAM_API_KEY;
 const apiSecret = process.env.STREAM_API_SECRET;
